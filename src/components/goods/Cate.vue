@@ -35,8 +35,8 @@
                     <el-tag size="mini"  v-if="scope.row.cat_level === 2" type="warning">三级</el-tag>
                 </template>
                 <template slot="opt" slot-scope="scope">
-                    <el-button type="primary" icon="el-icon-edit" size="mini">编辑</el-button>
-                    <el-button type="warning" icon="el-icon-delete" size="mini">删除</el-button>
+                    <el-button type="primary" icon="el-icon-edit" size="mini" @click="editCate(scope.row)">编辑</el-button>
+                    <el-button type="warning" icon="el-icon-delete" size="mini" @click="deleteCate(scope.row)">删除</el-button>
 
                 </template>
             </tree-table>
@@ -93,6 +93,25 @@
                 <el-button @click="addCateDialogVisible = false">取 消</el-button>
                 <el-button type="primary" @click="addCate">确 定</el-button>
             </span>
+        </el-dialog>
+
+        <!--修改用户对话框-->
+        <el-dialog
+                title="修改分类"
+                :visible.sync="EditCateDialogVisible"
+                width="80%"
+        >
+            <!--            主体-->
+            <el-form  :model="editCateForm" :rules="editCateFormRules" label-width="70px" ref="editCateFormRef">
+                <el-form-item label="分类名" prop="cat_name">
+                    <el-input v-model="editCateForm.cat_name"></el-input>
+                </el-form-item>
+
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="EditCateDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="putEditCateName">确 定</el-button>
+              </span>
         </el-dialog>
     </div>
 </template>
@@ -163,6 +182,16 @@
                 //选中的父级分类的id数组
                 selectedKeys(){
 
+                },
+                EditCateDialogVisible:false,
+                editCateForm:{
+                    cat_name:'',
+                    cat_id:''
+                },
+                editCateFormRules:{
+                    cat_name:[
+                        {required:true,message :'请输入分类名称',trigger:'blur'}
+                    ]
                 }
             }
         },
@@ -242,7 +271,55 @@
                 this.selectedKeys = []
                 this.addCateForm.cat_pid = 0
                 this.addCateForm.cat_level = 0
+            },
+            //删除分类
+            async deleteCate(result){
+                // console.log(res.cat_id)
+                //弹框询问是否删除
+                const  res = await this.$confirm('此操作将永久删除该分类, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).catch(err=>{
+                    return err
+                })
+                if(res!=='confirm')
+                {
+                    return this.$message.info('取消删除')
+                }
+
+                const {data:res1} = await this.$http.delete('categories/'+result.cat_id)
+
+                if(res1.meta.status!==200){
+                    return this.$message.error('删除分类失败')
+                }
+                this.$message.success('删除分类成功')
+                await this.getCateList()
+            },
+            editCate(result){
+                // console.log(result)
+                this.editCateForm.cat_name = result.cat_name
+                this.editCateForm.cat_id = result.cat_id
+                this.EditCateDialogVisible= true
+            },
+            putEditCateName(){
+                // console.log(this.editCateForm.cat_name)
+                // console.log(this.editCateForm.cat_id)
+                this.$refs.editCateFormRef.validate(async valid=>{
+                    if(!valid) return
+                    const {data:res} = await this.$http.put('categories/'+this.editCateForm.cat_id,{
+                        cat_name:this.editCateForm.cat_name
+                    })
+                    // console.log(res)
+                    if(res.meta.status !== 200){
+                        return this.$message.error('编辑分类信息失败')
+                    }
+                    this.EditCateDialogVisible = false
+                    await this.getCateList()
+                    this.$message.success('编辑分类信息成功')
+                })
             }
+
         },
         created() {
             this.getCateList()
