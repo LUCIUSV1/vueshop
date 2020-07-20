@@ -69,7 +69,7 @@
                         // });
                     // console.log(this.loginForm)
                     console.log(result)
-                    if (result.data.meta.status!= '200') return this.$message.error('登录失败')
+                    if (result.data.meta.status!= '200') return this.$message.error(result.data.meta.msg)
                     this.$message.success('登录成功')
                     window.sessionStorage.setItem('token',result.data.data.token)
 
