@@ -8,7 +8,7 @@
         </el-breadcrumb>
 
         <el-card class="box-card">
-           <el-row>
+           <el-row class="box-left">
                <el-col>
                    <el-button type="primary" @click="openAddDialog">添加角色</el-button>
                </el-col>
@@ -360,5 +360,8 @@
         display: flex;
         align-items: center;
     }
-
+.box-left{
+    float: left;
+    margin: 15px;
+}
 </style>
