@@ -11,8 +11,9 @@ import './assets/fonts/iconfont.css'
 import axios from 'axios'
 
 Vue.prototype.$http = axios
-// axios.defaults.baseURL= 'http://119.23.53.78:8888/api/private/v1'
-axios.defaults.baseURL= 'http://81.70.29.4:8888/api/private/v1'
+axios.defaults.baseURL= 'http://119.23.53.78:8888/api/private/v1'
+// axios.defaults.baseURL= 'http://81.70.29.4:8888/api/private/v1'
+// axios.defaults.baseURL= 'http://192.168.1.99:8888/api/private/v1'
 axios.interceptors.request.use(config=>{
   // console.log(config)
 
