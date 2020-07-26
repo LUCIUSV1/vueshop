@@ -19,7 +19,6 @@
                     <span>选择商品分类：</span>
 <!--                    选择商品的级联选择框-->
                     <el-cascader
-                            expand-Trigger="hover"
                             v-model="selectedKeys"
                             :options="cateList"
                             :props="cateProps "
@@ -184,10 +183,9 @@
                  cateProps:{
                     value:'cat_id',
                     label:'cat_name',
-                    children:'children'
+                    children:'children',
+                     expandTrigger: 'hover'
                 },
-
-                selectedKeys:[],
                 //被激活的页签的名字
                 activeName:'many',
                 //动态参数数据
@@ -211,7 +209,8 @@
                     attr_name:[
                         {required:true,message :'请输入内容',trigger:'blur'}
                     ]
-                }
+                },
+                selectedKeys:[]
             }
         },
         created() {
@@ -257,7 +256,7 @@
                 }
                 // console.log(res)
                 res.data.forEach(item=>{
-                    item.attr_vals= item.attr_vals ? item.attr_vals.split(',') :[]
+                    item.attr_vals= item.attr_vals ? item.attr_vals.split(' ') :[]
                     //控制文本框显示与隐藏
                     item.inputVisible = false
                     //文本框中输入的值
@@ -345,7 +344,7 @@
             //文本失去焦点或者点击回车
              handleInputConfirm(row){
                 // console.log('ok')
-                if(row.inputValue.trim().length===0){
+                if((row.inputValue.trim()).length===0){
                     row.inputValue=''
                     row.inputVisible = false
                     return
@@ -378,18 +377,30 @@
             },
             //将对attr_valus的值保存至数据库
             async saveAttr(row) {
-                const { data } = await this.$http.put(
+                // const { data } = await this.$http.put(
+                //     `categories/${this.cateId}/attributes/${row.attr_id}`,
+                //     {
+                //         attr_name: row.attr_name,
+                //         attr_sel: row.attr_sel,
+                //         attr_vals: row.attr_vals.join(" ")
+                //     }
+                // );
+                // if (data.meta.status !== 200) {
+                //     return this.$message.error(data.meta.msg);
+                // }
+                // this.$message.success("修改成功！");
+                const { data: res } = await this.$http.put(
                     `categories/${this.cateId}/attributes/${row.attr_id}`,
                     {
                         attr_name: row.attr_name,
                         attr_sel: row.attr_sel,
-                        attr_vals: row.attr_vals.join(" ")
+                        attr_vals: row.attr_vals.join(' ')
                     }
-                );
-                if (data.meta.status !== 200) {
-                    return this.$message.error(data.meta.msg);
+                )
+                if (res.meta.status !== 200) {
+                    return this.$message.error(res.meta.msg)
                 }
-                this.$message.success("修改成功！");
+                return this.$message.success('修改参数项成功')
             }
         },
         computed:{
